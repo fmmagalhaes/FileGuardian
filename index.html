@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FileGuardian API Tester</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .container { margin-bottom: 20px; }
+    input, button { margin: 5px 0; padding: 5px; }
+  </style>
+</head>
+<body>
+  <h1>FileGuardian API Tester</h1>
+  
+  <button onclick="clearOutput()">Clear</button>
+
+  <div class="container">
+    <h2>Create File</h2>
+    <input type="text" id="createFileName" placeholder="File Name">
+    <input type="number" id="createFileRisk" placeholder="Risk">
+    <button onclick="createFile()">Create File</button>
+    <pre id="createFileResponse"></pre>
+  </div>
+
+  <div class="container">
+    <h2>Get Files</h2>
+    <input type="number" id="riskOver" placeholder="Risk Over">
+    <input type="text" id="nameContains" placeholder="Name Contains">
+    <button onclick="getFiles()">Get Files</button>
+    <pre id="getFilesResponse"></pre>
+  </div>
+
+  <div class="container">
+    <h2>Get File by ID</h2>
+    <input type="number" id="getFileId" placeholder="File ID">
+    <button onclick="getFile()">Get File</button>
+    <pre id="getFileResponse"></pre>
+  </div>
+
+  <div class="container">
+    <h2>Get Top Shared Files</h2>
+    <input type="number" id="topFilesLimit" placeholder="Limit">
+    <button onclick="getTopFiles()">Get Top Shared Files</button>
+    <pre id="getTopFilesResponse"></pre>
+  </div>
+
+  <div class="container">
+    <h2>Share File</h2>
+    <input type="number" id="shareFileId" placeholder="File ID">
+    <input type="text" id="shareFileUsers" placeholder="User IDs (comma-separated)">
+    <input type="text" id="shareFileGroups" placeholder="Group IDs (comma-separated)">
+    <button onclick="shareFile()">Share File</button>
+    <pre id="shareFileResponse"></pre>
+  </div>
+
+  <div class="container">
+    <h2>Create Group</h2>
+    <input type="text" id="createGroupName" placeholder="Group Name">
+    <button onclick="createGroup()">Create Group</button>
+    <pre id="createGroupResponse"></pre>
+  </div>
+
+  <div class="container">
+    <h2>Get Groups</h2>
+    <button onclick="getGroups()">Get Groups</button>
+    <pre id="getGroupsResponse"></pre>
+  </div>
+
+  <div class="container">
+    <h2>Get Group by ID</h2>
+    <input type="number" id="getGroupId" placeholder="Group ID">
+    <button onclick="getGroup()">Get Group</button>
+    <pre id="getGroupResponse"></pre>
+  </div>
+
+  <div class="container">
+    <h2>Add Users to Group</h2>
+    <input type="number" id="groupIdToAddUsers" placeholder="Group ID">
+    <input type="text" id="userIdsToAdd" placeholder="User IDs (comma-separated)">
+    <button onclick="addUsersToGroup()">Add Users to Group</button>
+    <pre id="addUsersToGroupResponse"></pre>
+  </div>
+
+  <div class="container">
+    <h2>Create User</h2>
+    <input type="text" id="createUserName" placeholder="User Name">
+    <button onclick="createUser()">Create User</button>
+    <pre id="createUserResponse"></pre>
+  </div>
+
+  <div class="container">
+    <h2>Get Users</h2>
+    <button onclick="getUsers()">Get Users</button>
+    <pre id="getUsersResponse"></pre>
+  </div>
+
+  <div class="container">
+    <h2>Get User by ID</h2>
+    <input type="number" id="getUserId" placeholder="User ID">
+    <button onclick="getUser()">Get User</button>
+    <pre id="getUserResponse"></pre>
+  </div>
+
+  <script>
+    
+    const apiUrl = 'http://localhost:5113/api';
+
+    function clearOutput() {
+      document.querySelectorAll('pre').forEach(pre => pre.textContent = '');
+    }
+
+    async function createFile() {
+      const name = document.getElementById('createFileName').value;
+      const risk = document.getElementById('createFileRisk').value;
+      const response = await fetch(`${apiUrl}/files`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name,
+          risk: parseInt(risk)
+        })
+      });
+      const data = await response.json();
+      document.getElementById('createFileResponse').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function getFiles() {
+      const riskOver = document.getElementById('riskOver').value;
+      const nameContains = document.getElementById('nameContains').value;
+      const response = await fetch(`${apiUrl}/files?riskOver=${riskOver}&nameContains=${nameContains}`);
+      const data = await response.json();
+      document.getElementById('getFilesResponse').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function getFile() {
+      const id = document.getElementById('getFileId').value;
+      const response = await fetch(`${apiUrl}/files/${id}`);
+      const data = await response.json();
+      document.getElementById('getFileResponse').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function getTopFiles() {
+      const limit = document.getElementById('topFilesLimit').value;
+      const response = await fetch(`${apiUrl}/files/top?limit=${limit}`);
+      const data = await response.json();
+      document.getElementById('getTopFilesResponse').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function shareFile() {
+      const id = document.getElementById('shareFileId').value;
+      const usersInput = document.getElementById('shareFileUsers').value;
+      const groupsInput = document.getElementById('shareFileGroups').value;
+      const users = usersInput ? usersInput.split(',').map(Number) : [];
+      const groups = groupsInput ? groupsInput.split(',').map(Number) : [];
+      const response = await fetch(`${apiUrl}/files/${id}/share`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ users, groups })
+      });
+      if (response.ok) {
+        document.getElementById('shareFileResponse').textContent = 'File shared successfully.';
+      } else {
+        const data = await response.json();
+        document.getElementById('shareFileResponse').textContent = JSON.stringify(data, null, 2);
+      }
+    }
+
+    async function createGroup() {
+      const name = document.getElementById('createGroupName').value;
+      const response = await fetch(`${apiUrl}/groups`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      });
+      const data = await response.json();
+      document.getElementById('createGroupResponse').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function getGroups() {
+      const response = await fetch(`${apiUrl}/groups`);
+      const data = await response.json();
+      document.getElementById('getGroupsResponse').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function getGroup() {
+      const id = document.getElementById('getGroupId').value;
+      const response = await fetch(`${apiUrl}/groups/${id}`);
+      const data = await response.json();
+      document.getElementById('getGroupResponse').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function addUsersToGroup() {
+      const id = document.getElementById('groupIdToAddUsers').value;
+      const userIds = document.getElementById('userIdsToAdd').value.split(',').map(Number);
+      const response = await fetch(`${apiUrl}/groups/${id}/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userIds)
+      });
+      if (response.ok) {
+        document.getElementById('addUsersToGroupResponse').textContent = 'Users added to group successfully.';
+      } else {
+        const data = await response.json();
+        document.getElementById('addUsersToGroupResponse').textContent = JSON.stringify(data, null, 2);
+      }
+    }
+
+    async function createUser() {
+      const name = document.getElementById('createUserName').value;
+      const response = await fetch(`${apiUrl}/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      });
+      const data = await response.json();
+      document.getElementById('createUserResponse').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function getUsers() {
+      const response = await fetch(`${apiUrl}/users`);
+      const data = await response.json();
+      document.getElementById('getUsersResponse').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function getUser() {
+      const id = document.getElementById('getUserId').value;
+      const response = await fetch(`${apiUrl}/users/${id}`);
+      const data = await response.json();
+      document.getElementById('getUserResponse').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
