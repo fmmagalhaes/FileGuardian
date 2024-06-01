@@ -8,6 +8,11 @@ namespace FileGuardian.Api.Controllers;
 [ApiController]
 public class UserController(IUserService userService) : ControllerBase
 {
+    /// <summary>
+    /// Creates a user.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns>The id of the new user.</returns>
     [HttpPost]
     public async Task<ActionResult<int>> CreateUser([FromBody] User user)
     {
@@ -15,6 +20,11 @@ public class UserController(IUserService userService) : ControllerBase
         return Ok(userId);
     }
 
+    /// <summary>
+    /// Gets the details of a user.
+    /// </summary>
+    /// <param name="id">The id of the user.</param>
+    /// <returns>The user details.</returns>
     [HttpGet("{id}")]
     public async Task<ActionResult<User>> GetUser(int id)
     {
@@ -22,6 +32,10 @@ public class UserController(IUserService userService) : ControllerBase
         return Ok(user);
     }
 
+    /// <summary>
+    /// Gets a list of all users.
+    /// </summary>
+    /// <returns>A list of users.</returns>
     [HttpGet]
     public async Task<ActionResult<List<User>>> GetUsers()
     {

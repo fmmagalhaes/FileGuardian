@@ -16,7 +16,7 @@ You can now open http://localhost:5113/swagger/index.html to view the Swagger UI
 ## How to test
 
 ### Populate with random data (optional)
-Running `populate_db/populate.py` will create a random set of files, users, and groups, and relationships between them.
+Running `populate_db/populate.py` will make requests to the server to create a random set of files, users, and groups, and relationships between them.
 
 1. Install [Python 3.x](https://www.python.org/downloads/)
 2. Install [pip](https://pip.pypa.io/en/stable/installation/) `python -m ensurepip --upgrade`
